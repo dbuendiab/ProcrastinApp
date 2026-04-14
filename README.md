@@ -11,6 +11,27 @@ Una aplicación de agenda en lenguaje natural para Android que integra inteligen
 - 💾 **Persistencia local con Room Database**
 - 🤖 **Integración con OpenAI GPT para procesamiento inteligente**
 
+## 🏗️ Arquitectura del pipeline de IA
+
+```
+AIService → ChatAIService → AssistantRepository → AssistantViewModel → UI
+(API raw)   (mensajería)    (parseo + tareas)      (estado UI)
+```
+
+- **`ChatAIService`** gestiona exclusivamente la comunicación con la API y la persistencia de la conversación.
+- **`AssistantRepository`** centraliza el parseo de respuestas (`AssistantResponseParser`) y la extracción de tareas (`TaskJsonExtractor`). Expone flujos de estado listos para consumir desde el ViewModel.
+- **`AssistantViewModel`** gestiona únicamente el estado de la UI y las acciones del usuario.
+
+### Gestión de errores tipados
+
+Los errores se modelan como sealed classes sin strings hardcoded:
+- `AssistantResponseParserError` — errores del parser (JSON malformado, etc.)
+- `AssistantEvent` — resultado de operaciones del ViewModel (guardado de tareas, carga para edición)
+- `TaskListResult` — resultado de acciones sobre la lista de tareas
+- `QuoteError` — errores del servicio de frases motivadoras
+
+La UI recibe tipos y traduce a strings localizadas con `stringResource()`.
+
 ## 🧱 Tecnologías utilizadas
 
 - **Lenguaje**: Kotlin
@@ -64,7 +85,7 @@ app/src/main/java/com/ibc/procrastinapp/
 │   ├── local/          # Room: DAOs, entidades, base de datos
 │   ├── mapper/         # Adaptador Room-Repository
 │   ├── model/          # Task: core modelo datos
-│   ├── repository/     # Implementaciones de repositorios
+│   ├── repository/     # TaskRepository + AssistantRepository (parseo + extracción)
 │   └── service/        # Servicios sobre API de OpenAI
 ├── ui/                 # Capa de presentación (Compose)
 │   ├── assistant/      # Pantalla asistente IA (V+VM)
@@ -90,8 +111,12 @@ Ubicación: `app/src/androidTest/java/`
 ```
 
 **Archivos de prueba principales**:
-- `TaskRepositoryIntegrationTest.kt` - Pruebas del repositorio
-- Tests de ViewModels y casos de uso
+- `AssistantRepositoryTest.kt` — 9 tests de la capa de parseo y extracción de tareas
+- `AssistantResponseParserImplTest.kt` — tests del parser de respuestas de la IA
+- `AssistantViewModelTest.kt` — tests del ViewModel del asistente
+- `ChatAIServiceTest.kt` — tests del servicio de comunicación con la API
+- `TaskJsonExtractorTest.kt` — tests del extractor de tareas desde JSON
+- `TaskRepositoryIntegrationTest.kt` — pruebas de integración del repositorio
 - Tests de la base de datos Room
 
 ## 🧪 Ejemplo de interacción
@@ -108,8 +133,10 @@ La procrastinación no se vence solo con listas: se necesita motivación, clarid
 - Funcionalidad base implementada
 - Integración con OpenAI GPT
 - Persistencia local con Room
-- Arquitectura MVVM
-- Testing unitario e integración
+- Arquitectura MVVM con pipeline de IA en capas (ChatAIService → AssistantRepository → ViewModel)
+- Gestión de errores tipados mediante sealed classes (sin strings hardcoded en ViewModels)
+- Internacionalización completa EN/ES de todos los mensajes de usuario
+- Testing unitario e integración (80 tests)
 
 🚧 **En desarrollo**:
 - Notificaciones push
@@ -138,9 +165,10 @@ Ver [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) para información detallada
 
 ## 📞 Contacto
 
-¿Preguntas o sugerencias? 
-- GitHub: [@ibuendiac](https://github.com/ibuendiac)
-- Proyecto: [ProcrastinApp](https://github.com/ibuendiac/ProcrastinApp)
+¿Preguntas o sugerencias?
+- GitHub: [@dbuendiab](https://github.com/dbuendiab)
+- Fork: [dbuendiab/ProcrastinApp](https://github.com/dbuendiab/ProcrastinApp)
+- Proyecto original: [ibuendiac/ProcrastinApp](https://github.com/ibuendiac/ProcrastinApp)
 
 ---
 
