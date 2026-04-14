@@ -38,9 +38,6 @@ class ChatAIService(
 ) {
     private val logTag = "IBC-ChatAIService"
 
-    // Composición directa - más simple y clara
-    private val responseParser = AssistantResponseParserImpl()
-
     // Prompt especializado para tareas
     private val taskPrompt = buildTaskPrompt()
 
@@ -50,10 +47,6 @@ class ChatAIService(
     // Flujo de mensajes para la UI (solo mensajes visibles de usuario y asistente)
     private val _messagesFlow = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messagesFlow.asStateFlow()
-
-    // Estado para la última respuesta del asistente
-    private val _lastResponse = MutableStateFlow<AssistantResponse?>(null)
-    val lastResponse: StateFlow<AssistantResponse?> = _lastResponse.asStateFlow()
 
     // Estado de carga
     private val _isLoading = MutableStateFlow(false)
@@ -155,7 +148,6 @@ Por favor, recuerda devolver siempre la lista JSON con TODAS las tareas actualiz
 
         // Limpiamos cualquier error
         _error.value = null
-        _lastResponse.value = null
 
         // Guardamos el estado
         coroutineScope.launch {
@@ -214,12 +206,6 @@ Por favor, recuerda devolver siempre la lista JSON con TODAS las tareas actualiz
             Logger.d(logTag, "-> DESPUES _messagesFlow.value.size = ${_messagesFlow.value.size}")
             Logger.w(logTag, "-> esto (_messagesFlow) debería actualizar la UI")
 
-            // Procesamos el contenido del mensaje para extraer los componentes
-            val messageContent = assistantMessage.content
-            val parsedResponse = responseParser.parse(messageContent)
-            _lastResponse.value = parsedResponse
-            Logger.d(logTag, "_lastResponse.value = $parsedResponse")
-
             // Guardamos los mensajes
             Logger.d(logTag, "saveMessages()")
             saveMessages()
@@ -268,15 +254,6 @@ Por favor, recuerda devolver siempre la lista JSON con TODAS las tareas actualiz
 
         Logger.d(logTag, "-> update _messagesFlow.value")
         _messagesFlow.value = filterUiMessages(conversationMessages)
-
-        // Procesamos el contenido del mensaje para extraer los componentes
-        val messageContent = assistantMessage.content
-        Logger.d(logTag, "messageContent = $messageContent")
-        val parsedResponse = responseParser.parse(messageContent)
-        Logger.d(logTag, "parsedResponse = $parsedResponse")
-
-        _lastResponse.value = parsedResponse
-        Logger.d(logTag, "-> update _lastResponse.value -> actualiza UI")
 
         // Guardamos los mensajes
         coroutineScope.launch {

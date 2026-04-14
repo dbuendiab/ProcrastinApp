@@ -17,10 +17,10 @@ import com.ibc.procrastinapp.data.alarm.AlarmScheduler
 import com.ibc.procrastinapp.data.alarm.AlarmSchedulerImpl
 import com.ibc.procrastinapp.data.local.AppDatabase
 import com.ibc.procrastinapp.data.repository.TaskRepository
+import com.ibc.procrastinapp.data.repository.AssistantRepository
 import com.ibc.procrastinapp.data.service.ChatAIService
 import com.ibc.procrastinapp.data.service.MessageStorage
 import com.ibc.procrastinapp.data.service.MessageStorageImpl
-import com.ibc.procrastinapp.data.service.TaskJsonExtractor
 import com.ibc.procrastinapp.data.service.quotes.QuoteAIService
 import com.ibc.procrastinapp.ui.assistant.AssistantViewModel
 import com.ibc.procrastinapp.ui.assistant.QuoteViewModel
@@ -93,9 +93,6 @@ val chatAIModule = module {
         AIService.getInstance()
     }
 
-    // El mecanismo para extraer las tareas desde el JSON
-    single { TaskJsonExtractor() }
-
     // Implementación de almacenamiento de mensajes
     single<MessageStorage> { MessageStorageImpl(get()) }
 
@@ -108,8 +105,11 @@ val chatAIModule = module {
         )
     }
 
+    // Repositorio que orquesta el parseo y la extracción de tareas
+    single { AssistantRepository(get<ChatAIService>(), get<CoroutineScope>()) }
+
     // Servicio para la generación de frases inspiradoras usando IA
-    single { 
+    single {
         QuoteAIService(
             get<AIService>(), 
             get<CoroutineScope>(),
@@ -126,7 +126,7 @@ val chatAIModule = module {
 val viewModelModule = module {
 
     // ViewModel del asistente con IA (chats + tareas)
-    viewModel { AssistantViewModel(get<ChatAIService>(), get<TaskRepository>()) }
+    viewModel { AssistantViewModel(get<AssistantRepository>(), get<TaskRepository>()) }
 
     // ViewModel para la pantalla de lista de tareas
     viewModel { TaskListViewModel(get<TaskRepository>()) }

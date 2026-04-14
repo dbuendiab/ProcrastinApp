@@ -34,8 +34,7 @@ class AssistantResponseParserImpl : AssistantResponseParser {
 
             // Verificamos si hay múltiples objetos JSON
             if (allMatches.size > 1) {
-                Logger.e(logTag, "Se encontraron múltiples objetos JSON: ${allMatches.size}")
-                throw IllegalArgumentException("Se encontraron múltiples objetos JSON en el mensaje")
+                throw AssistantResponseParserError.MultipleJsonObjectsFound(allMatches.size)
             }
 
             // Extraemos el único JSON y el texto anterior
@@ -51,8 +50,7 @@ class AssistantResponseParserImpl : AssistantResponseParser {
                     comment = jsonObject.get("comentario").asString.trim()
                 }
             } catch (e: Exception) {
-                Logger.e(logTag, "Error al parsear JSON para comentario: ${e.message}")
-                throw IllegalArgumentException("JSON malformado: no se pudo parsear el contenido", e)
+                throw AssistantResponseParserError.MalformedJson(e)
             }
 
             return AssistantResponse(
@@ -60,12 +58,22 @@ class AssistantResponseParserImpl : AssistantResponseParser {
                 json = jsonContent,
                 commentary = comment
             )
+        } catch (e: AssistantResponseParserError) {
+            logParsingError(e)
+            throw e
         } catch (e: Exception) {
-            if (e is IllegalArgumentException) {
-                throw e // Re-lanzamos las excepciones de validación
-            }
-            Logger.e(logTag, "Error al parsear respuesta: ${e.message}")
+            Logger.e(logTag, "Error inesperado al parsear respuesta: ${e.message}")
             return AssistantResponse(text = message.trim())
         }
+    }
+
+    private fun logParsingError(error: AssistantResponseParserError) {
+        val logMessage = when (error) {
+            is AssistantResponseParserError.MultipleJsonObjectsFound ->
+                "Se encontraron múltiples objetos JSON: ${error.count}"
+            is AssistantResponseParserError.MalformedJson ->
+                "Error al parsear JSON: ${error.cause.message}"
+        }
+        Logger.e(logTag, logMessage)
     }
 }

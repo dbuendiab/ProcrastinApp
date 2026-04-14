@@ -17,20 +17,12 @@ class TaskJsonExtractor(
     private val gson: Gson = Gson()
 ) {
     /**
-     * Recibe el String Message.content y devuelve la parte JSON como List<Task>
-     * De hecho, esto parece un mecanismo similar al de AssistantResponseParserImpl,
-     * o sea, que sospecho que se superponen
+     * Recibe el JSON limpio extraído por AssistantResponseParser y devuelve la lista de tareas.
      */
-    fun extractTasksFromText(text: String): List<Task> {
-        val regex = Regex("""\{[\s\S]*\}""")
-        val matches = regex.findAll(text).toList()
-        if (matches.size != 1) return emptyList()
-
-        Logger.d("IBC-TaskJsonExtractor", "Texto original: $text")
-        Logger.d("IBC-TaskJsonExtractor", "Texto extraído: ${matches[0].value}")
-
+    fun extractTasks(json: String): List<Task> {
+        if (json.isBlank()) return emptyList()
         return try {
-            val result = gson.fromJson(matches[0].value, ResultadoAI::class.java)
+            val result = gson.fromJson(json, ResultadoAI::class.java)
             Logger.d("IBC-TaskJsonExtractor", "Resultado fromJson: $result")
             val rawTasks = result.propuesta?.tasks ?: return emptyList()
             val tasks = rawTasks.map { it.withNonNullStrings() }
