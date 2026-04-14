@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.data.model.Task
+import com.ibc.procrastinapp.ui.tasklist.TaskListResult
 import com.ibc.procrastinapp.ui.tasklist.TaskListUiState
 
 /**
@@ -38,9 +41,17 @@ fun TaskListContent(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        // Mostrar error si existe
-        uiState.errorMessage?.let {
-            ErrorMessage(message = it)
+        // Traducir resultado tipado a mensaje localizado
+        when (val r = uiState.result) {
+            is TaskListResult.Completed ->
+                ErrorMessage(message = stringResource(R.string.tasklist_complete_success), isError = false)
+            is TaskListResult.CompleteFailed ->
+                ErrorMessage(message = stringResource(R.string.tasklist_complete_failed, r.message ?: ""))
+            is TaskListResult.Deleted ->
+                ErrorMessage(message = stringResource(R.string.tasklist_delete_success), isError = false)
+            is TaskListResult.DeleteFailed ->
+                ErrorMessage(message = stringResource(R.string.tasklist_delete_failed, r.message ?: ""))
+            null -> Unit
         }
 
         // Mostrar barra de selección si hay tareas seleccionadas

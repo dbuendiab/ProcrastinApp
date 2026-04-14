@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.ui.assistant.QuoteViewModel
+import com.ibc.procrastinapp.ui.assistant.QuoteViewModel.QuoteError
 
 
 
@@ -60,14 +61,20 @@ fun AquiNoHayNadaBox(
             // 👉 espacio flexible para empujar la cita hacia el centro
             Spacer(modifier = Modifier.weight(1f))
 
-            // 👉 Mostrar frase motivadora si existe
+            // 👉 Mostrar frase motivadora o error si existe
             quoteViewModel?.let {
                 val quote by it.currentQuote.collectAsStateWithLifecycle()
-                quote?.let { phrase ->
+                val quoteError by it.quoteError.collectAsStateWithLifecycle()
+                val displayText = when (quoteError) {
+                    is QuoteError.LoadFailed -> stringResource(R.string.quote_error_load)
+                    is QuoteError.FetchFailed -> stringResource(R.string.quote_error_fetch)
+                    null -> quote
+                }
+                displayText?.let { phrase ->
                     Text(
                         text = phrase,
-                        style = MaterialTheme.typography.headlineSmall, // 👉 también grande pero secundario
-                        color = primaryColor.copy(alpha = 0.4f),                         // 👉 llamativo pero del colorScheme
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = primaryColor.copy(alpha = 0.4f),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
                     )

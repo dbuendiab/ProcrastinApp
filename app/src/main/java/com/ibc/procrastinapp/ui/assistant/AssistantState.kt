@@ -22,15 +22,26 @@ data class AssistantState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = false,
     val chatAIServiceError: Throwable? = null,
-    val viewModelInfo: ViewModelInfo? = null,
+    val event: AssistantEvent? = null,
 ) {
     val hasTasks: Boolean get() = tasks.isNotEmpty()
 
-    // Determina el tipo de mensaje de guardado/error
+    // Tipo de mensaje de presentación para StatusCard (creado en la capa UI)
     sealed class ViewModelInfo(val text: String) {
-        class Success(text: String): ViewModelInfo(text)
-        class Warning(text: String): ViewModelInfo(text)
-        class Error(text: String): ViewModelInfo(text)
+        class Success(text: String) : ViewModelInfo(text)
+        class Warning(text: String) : ViewModelInfo(text)
+        class Error(text: String) : ViewModelInfo(text)
+    }
+
+    // Eventos tipados que emite el ViewModel (sin strings hardcoded)
+    sealed class AssistantEvent {
+        data class CommitDone(val saved: Int, val updated: Int, val failed: Int) : AssistantEvent()
+        data class LoadFailed(val errors: List<LoadTaskError>) : AssistantEvent()
+    }
+
+    sealed class LoadTaskError {
+        data class NotFound(val id: Long) : LoadTaskError()
+        data class TaskException(val id: Long, val message: String?) : LoadTaskError()
     }
 
     // Metodo toString() personalizado para debugging
@@ -41,7 +52,7 @@ data class AssistantState(
         sb.appendLine("  tasks: ${tasks.size} items")
         sb.appendLine("  isLoading: $isLoading")
         sb.appendLine("  chatAIServiceError: ${chatAIServiceError ?: "null"}")
-        sb.appendLine("  viewModelInfo: ${viewModelInfo?.text ?: "null"}")
+        sb.appendLine("  event: ${event ?: "null"}")
         sb.appendLine("}")
         return sb.toString()
     }

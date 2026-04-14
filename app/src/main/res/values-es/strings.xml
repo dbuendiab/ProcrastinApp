@@ -79,6 +79,29 @@
     <string name="error_parser_malformed_json">No se pudo procesar la respuesta del asistente (datos malformados). Por favor, inténtalo de nuevo.</string>
     <string name="error_parser_multiple_json">La respuesta del asistente contiene varios bloques de datos. Por favor, inténtalo de nuevo.</string>
 
+    <!-- AssistantViewModel: mensajes de resultado de guardado -->
+    <string name="commit_one_saved">✓ Una tarea guardada</string>
+    <string name="commit_n_saved">✓ %1$d tareas guardadas</string>
+    <string name="commit_one_updated">✓ Una tarea actualizada</string>
+    <string name="commit_n_updated">✓ %1$d tareas actualizadas</string>
+    <string name="commit_saved_and_updated">✓ %1$d nueva(s) + %2$d actualizada(s)</string>
+    <string name="commit_partial_failure">⚠️ Guardadas: %1$d, actualizadas: %2$d, fallidas: %3$d</string>
+    <string name="commit_nothing_saved">❌ Ninguna tarea guardada</string>
+
+    <!-- AssistantViewModel: errores de carga de tareas -->
+    <string name="load_task_not_found">❌ No encontrada tarea ID %1$d</string>
+    <string name="load_task_exception">❌ Error tarea %1$d: %2$s</string>
+
+    <!-- TaskListViewModel: mensajes de resultado de acciones -->
+    <string name="tasklist_complete_success">Tareas completadas correctamente</string>
+    <string name="tasklist_complete_failed">Error al completar tareas: %1$s</string>
+    <string name="tasklist_delete_success">Tareas eliminadas correctamente</string>
+    <string name="tasklist_delete_failed">Error al eliminar tareas: %1$s</string>
+
+    <!-- QuoteViewModel: mensajes de error -->
+    <string name="quote_error_load">Error al cargar frases motivadoras.</string>
+    <string name="quote_error_fetch">Error al obtener una nueva frase.</string>
+
     <!-- Error genérico -->
     <string name="error_unexpected">Error inesperado: %1$s</string>
 

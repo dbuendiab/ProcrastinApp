@@ -28,9 +28,18 @@ class QuoteViewModel(
     private val _currentQuote = MutableStateFlow<String?>(null)
     val currentQuote: StateFlow<String?> = _currentQuote.asStateFlow()
 
-    // Estado de carga (opcional pero muy útil)
+    // Error tipado (la UI lo traduce a string localizada)
+    private val _quoteError = MutableStateFlow<QuoteError?>(null)
+    val quoteError: StateFlow<QuoteError?> = _quoteError.asStateFlow()
+
+    // Estado de carga
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    sealed class QuoteError {
+        object LoadFailed : QuoteError()
+        object FetchFailed : QuoteError()
+    }
 
     init {
         initializeQuotes()
@@ -43,7 +52,7 @@ class QuoteViewModel(
                 quoteAIService.initialize()
                 getNextQuote()
             } catch (e: Exception) {
-                _currentQuote.value = "Error al cargar frases motivadoras."
+                _quoteError.value = QuoteError.LoadFailed
             } finally {
                 _isLoading.value = false
             }
@@ -56,8 +65,9 @@ class QuoteViewModel(
             try {
                 val quote = quoteAIService.getNextQuote()
                 _currentQuote.value = quote
+                _quoteError.value = null
             } catch (e: Exception) {
-                _currentQuote.value = "Error al obtener una nueva frase."
+                _quoteError.value = QuoteError.FetchFailed
             } finally {
                 _isLoading.value = false
             }

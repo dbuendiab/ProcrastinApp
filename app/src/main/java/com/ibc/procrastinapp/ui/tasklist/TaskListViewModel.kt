@@ -45,8 +45,8 @@ class TaskListViewModel(
     // 🔹 Aquí se almacenan los ID de las tareas que el usuario ha seleccionado
     private val _selectedTaskIds = MutableStateFlow<Set<Long>>(emptySet())
 
-    // 🔹 Mensaje de error o confirmación (es null cuando no hay mensaje)
-    private val _errorMessage = MutableStateFlow<String?>(null)
+    // 🔹 Resultado tipado de la última acción (la UI lo traduce a string localizada)
+    private val _result = MutableStateFlow<TaskListResult?>(null)
 
     // 🔹 Indica si debe mostrarse el diálogo de acciones (completar/eliminar)
     private val _isActionsDialogVisible = MutableStateFlow(false)
@@ -78,13 +78,13 @@ class TaskListViewModel(
     val uiState: StateFlow<TaskListUiState> = combine(
         tasks,
         _selectedTaskIds,
-        _errorMessage,
+        _result,
         _isActionsDialogVisible
-    ) { tasks, selectedTaskIds, errorMessage, isActionsDialogVisible ->
+    ) { tasks, selectedTaskIds, result, isActionsDialogVisible ->
         TaskListUiState(
             tasks = tasks,
             selectedTaskIds = selectedTaskIds,
-            errorMessage = errorMessage,
+            result = result,
             isActionsDialogVisible = isActionsDialogVisible
         )
     }.stateIn(
@@ -142,9 +142,12 @@ class TaskListViewModel(
                 taskRepository.completeTasks(taskIds.toList())
                 _selectedTaskIds.value = emptySet()
                 _isActionsDialogVisible.value = false
-                _errorMessage.value = "Tareas completadas correctamente"
+                _result.value = TaskListResult.Completed
             } catch (e: Exception) {
-                _errorMessage.value = "Error al completar tareas: ${e.message}"
+                _result.value = TaskListResult.CompleteFailed(e.message)
+            } finally {
+                delay(3000)
+                _result.value = null
             }
         }
     }
@@ -159,12 +162,12 @@ class TaskListViewModel(
                 taskRepository.deleteTasks(taskIds.toList())
                 _selectedTaskIds.value = emptySet()
                 _isActionsDialogVisible.value = false
-                _errorMessage.value = "Tareas eliminadas correctamente"
+                _result.value = TaskListResult.Deleted
             } catch (e: Exception) {
-                _errorMessage.value = "Error al eliminar tareas: ${e.message}"
+                _result.value = TaskListResult.DeleteFailed(e.message)
             } finally {
                 delay(3000)
-                _errorMessage.value = null
+                _result.value = null
             }
         }
     }

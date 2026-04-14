@@ -99,11 +99,11 @@ fun AssistantScreen(
         }
     }
 
-    // El viewModelInfo son los mensajes de Error, Warning o Success del viewModel
-    LaunchedEffect(uiState.viewModelInfo) {
-        if (uiState.viewModelInfo != null) {
-            delay(10000) // Timeout de seguridad
-            assistantViewModel.clearViewModelInfo()
+    // Timeout de seguridad para limpiar eventos no descartados manualmente
+    LaunchedEffect(uiState.event) {
+        if (uiState.event != null) {
+            delay(10000)
+            assistantViewModel.clearEvent()
         }
     }
 
@@ -139,7 +139,7 @@ fun AssistantScreen(
                             // Vista de mensajes completos de ChatGPT, con texto de tareas en JSON
                             AssistantMessagesView(
                                 uiState = uiState,
-                                onClearViewModelInfo = { assistantViewModel.clearViewModelInfo() },
+                                onClearViewModelInfo = { assistantViewModel.clearEvent() },
                                 quoteViewModel = quoteViewModel,
                                 // Quita el padding inferior para dejar espacio al input
                                 modifier = Modifier.padding(bottom = 0.dp)
@@ -153,7 +153,7 @@ fun AssistantScreen(
                                 isEditMode = isEditMode,
                                 agendaButtonClicked = agendaButtonClicked,
                                 showSaveButton = showSaveButton,
-                                onClearViewModelInfo = { assistantViewModel.clearViewModelInfo() },
+                                onClearViewModelInfo = { assistantViewModel.clearEvent() },
                                 onAgendaButtonClick = {
                                     agendaButtonClicked = true
                                     assistantViewModel.commitTasksFromAssistant()

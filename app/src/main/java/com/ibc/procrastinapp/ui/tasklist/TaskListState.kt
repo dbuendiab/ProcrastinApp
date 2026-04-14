@@ -20,9 +20,16 @@ data class TaskListUiState(
     val tasks: List<Task> = emptyList(),
 //    val isLoading: Boolean = false,
     val selectedTaskIds: Set<Long> = emptySet(),
-    val errorMessage: String? = null,
+    val result: TaskListResult? = null,
     val isActionsDialogVisible: Boolean = false
 ) {
     val hasSelection: Boolean get() = selectedTaskIds.isNotEmpty()
     val selectionCount: Int get() = selectedTaskIds.size
+}
+
+sealed class TaskListResult {
+    object Completed : TaskListResult()
+    data class CompleteFailed(val message: String?) : TaskListResult()
+    object Deleted : TaskListResult()
+    data class DeleteFailed(val message: String?) : TaskListResult()
 }

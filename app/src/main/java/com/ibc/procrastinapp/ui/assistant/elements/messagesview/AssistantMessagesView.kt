@@ -27,6 +27,8 @@ import com.ibc.procrastinapp.data.ai.AIServiceError
 import com.ibc.procrastinapp.data.service.AssistantResponseParserError
 import com.ibc.procrastinapp.data.service.SaveMessagesException
 import com.ibc.procrastinapp.ui.assistant.AssistantState
+import com.ibc.procrastinapp.ui.assistant.AssistantState.AssistantEvent
+import com.ibc.procrastinapp.ui.assistant.AssistantState.LoadTaskError
 import com.ibc.procrastinapp.ui.assistant.AssistantState.ViewModelInfo
 import com.ibc.procrastinapp.ui.assistant.QuoteViewModel
 import com.ibc.procrastinapp.ui.assistant.elements.StatusCard
@@ -91,10 +93,40 @@ fun AssistantMessagesView(
             )
         }
 
-        // Mostrar mensaje de guardado si existe
-        uiState.viewModelInfo?.let { saveMessage ->
+        // Convertir evento tipado a ViewModelInfo con strings localizadas
+        val eventViewModelInfo: ViewModelInfo? = when (val e = uiState.event) {
+            is AssistantEvent.CommitDone -> when {
+                e.failed == 0 && e.updated == 0 ->
+                    ViewModelInfo.Success(
+                        if (e.saved == 1) stringResource(R.string.commit_one_saved)
+                        else stringResource(R.string.commit_n_saved, e.saved)
+                    )
+                e.failed == 0 && e.saved == 0 ->
+                    ViewModelInfo.Success(
+                        if (e.updated == 1) stringResource(R.string.commit_one_updated)
+                        else stringResource(R.string.commit_n_updated, e.updated)
+                    )
+                e.failed == 0 ->
+                    ViewModelInfo.Success(stringResource(R.string.commit_saved_and_updated, e.saved, e.updated))
+                e.saved + e.updated > 0 ->
+                    ViewModelInfo.Warning(stringResource(R.string.commit_partial_failure, e.saved, e.updated, e.failed))
+                else ->
+                    ViewModelInfo.Error(stringResource(R.string.commit_nothing_saved))
+            }
+            is AssistantEvent.LoadFailed -> {
+                val lines = e.errors.map { err ->
+                    when (err) {
+                        is LoadTaskError.NotFound -> stringResource(R.string.load_task_not_found, err.id)
+                        is LoadTaskError.TaskException -> stringResource(R.string.load_task_exception, err.id, err.message ?: "")
+                    }
+                }
+                ViewModelInfo.Error(lines.joinToString("\n"))
+            }
+            null -> null
+        }
+        eventViewModelInfo?.let { info ->
             StatusCard(
-                viewModelInfo = saveMessage,
+                viewModelInfo = info,
                 onDismiss = onClearViewModelInfo,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -143,10 +175,9 @@ fun AssistantMessagesView(
 @Preview
 @Composable
 fun MessagesViewInfoPreview() {
-    val viewModelInfo = ViewModelInfo.Success("Tarea guardada bien")
     val uiState = AssistantState(
         chatAIServiceError = AIServiceError.Communication("No se pudo salvar la tarea", null),
-        viewModelInfo = viewModelInfo
+        event = AssistantState.AssistantEvent.CommitDone(saved = 2, updated = 0, failed = 0)
     )
     AssistantMessagesView(
         uiState = uiState,

@@ -12,7 +12,8 @@ import com.ibc.procrastinapp.data.model.Task
 import com.ibc.procrastinapp.data.repository.AssistantRepository
 import com.ibc.procrastinapp.data.repository.TaskRepository
 import com.ibc.procrastinapp.data.service.AssistantResponse
-import com.ibc.procrastinapp.ui.assistant.AssistantState.ViewModelInfo
+import com.ibc.procrastinapp.ui.assistant.AssistantState.AssistantEvent
+import com.ibc.procrastinapp.ui.assistant.AssistantState.LoadTaskError
 import com.ibc.procrastinapp.utils.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -29,8 +30,8 @@ class AssistantViewModel(
     private val taskRepository: TaskRepository
 ) : ViewModel() {
 
-    // Muestra mensajes de confirmación o error
-    private val _viewModelInfo = MutableStateFlow<ViewModelInfo?>(null)
+    // Evento tipado que la UI traduce a string localizada
+    private val _event = MutableStateFlow<AssistantEvent?>(null)
 
     // Señaliza el final de la tarea asíncrona de guardado de tareas
     private val _commitFinished = MutableSharedFlow<Unit>()
@@ -49,14 +50,14 @@ class AssistantViewModel(
         assistantRepository.tasks,
         assistantRepository.isLoading,
         assistantRepository.error,
-        _viewModelInfo
-    ) { messages, tasks, isLoading, error, viewModelInfo ->
+        _event
+    ) { messages, tasks, isLoading, error, event ->
         AssistantState(
             messages = messages,
             tasks = tasks,
             isLoading = isLoading,
             chatAIServiceError = error,
-            viewModelInfo = viewModelInfo
+            event = event
         )
     }.stateIn(
         viewModelScope,
@@ -68,7 +69,7 @@ class AssistantViewModel(
         viewModelScope.launch {
             assistantRepository.initSession()
             originalTaskIds.clear()
-            _viewModelInfo.value = null
+            _event.value = null
         }
     }
 
@@ -104,31 +105,31 @@ class AssistantViewModel(
                 }
             }
 
-            _viewModelInfo.value = getCommitResultInfo(saved, 0, failed)
-            Logger.d("IBC13-AssistantViewModel", "getCommitResultInfo(): _viewModelInfo.value = ${_viewModelInfo.value}")
+            _event.value = AssistantEvent.CommitDone(saved = saved, updated = 0, failed = failed)
+            Logger.d("IBC13-AssistantViewModel", "commitTasksFromAssistant(): saved=$saved, failed=$failed")
             _commitFinished.emit(Unit)
             Logger.d("IBC13-AssistantViewModel", "commitFinished.emit: guardado finalizado")
             delay(3000)
-            _viewModelInfo.value = null
+            _event.value = null
             originalTaskIds.clear()
             assistantRepository.clearTasks()
         }
     }
 
-    fun clearViewModelInfo() {
-        _viewModelInfo.value = null
+    fun clearEvent() {
+        _event.value = null
     }
 
     fun loadTasksForEditing(taskIds: List<Long>) {
         viewModelScope.launch {
             val tasks = mutableListOf<Task>()
-            val loadErrors = mutableListOf<String>()
+            val loadErrors = mutableListOf<LoadTaskError>()
             taskIds.forEach { id ->
                 try {
                     taskRepository.getTask(id)?.let { tasks.add(it) }
-                        ?: loadErrors.add("❌ No encontrada tarea ID $id")
+                        ?: loadErrors.add(LoadTaskError.NotFound(id))
                 } catch (e: Exception) {
-                    loadErrors.add("❌ Error tarea $id: ${e.message}")
+                    loadErrors.add(LoadTaskError.TaskException(id, e.message))
                 }
             }
             if (tasks.isNotEmpty()) {
@@ -141,7 +142,7 @@ class AssistantViewModel(
             }
 
             if (loadErrors.isNotEmpty()) {
-                _viewModelInfo.value = ViewModelInfo.Error(loadErrors.joinToString("\n"))
+                _event.value = AssistantEvent.LoadFailed(loadErrors)
             }
         }
     }
@@ -149,29 +150,6 @@ class AssistantViewModel(
     fun cancelEdit() {
         assistantRepository.clearTasks()
         originalTaskIds.clear()
-    }
-
-    @Suppress("SameParameterValue")
-    private fun getCommitResultInfo(saved: Int, updated: Int, failed: Int): ViewModelInfo {
-        return when {
-            failed == 0 && updated == 0 -> {
-                val msg = if (saved == 1) "✓ Una tarea guardada"
-                else "✓ $saved tareas guardadas"
-                ViewModelInfo.Success(msg)
-            }
-            failed == 0 && saved == 0 -> {
-                val msg = if (updated == 1) "Una tarea actualizada"
-                else "✓ $updated tareas actualizadas"
-                ViewModelInfo.Success(msg)
-            }
-            failed == 0 -> {
-                val savedMsg = if (saved == 1) "$saved nueva" else "$saved nuevas"
-                val updatedMsg = if (updated == 1) "$updated actualizada" else "$updated actualizadas"
-                ViewModelInfo.Success("✓ $savedMsg + $updatedMsg")
-            }
-            saved + updated > 0 -> ViewModelInfo.Warning("⚠️ nuevas: $saved, actualizadas + $updated; fallidas: $failed")
-            else -> ViewModelInfo.Error("❌ Ninguna tarea guardada")
-        }
     }
 
     private fun convertListTaskToJSON(tasks: List<Task>): String {

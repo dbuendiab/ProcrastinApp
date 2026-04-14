@@ -79,6 +79,29 @@
     <string name="error_parser_malformed_json">The assistant\'s response could not be processed (malformed data). Please try again.</string>
     <string name="error_parser_multiple_json">The assistant\'s response contains multiple data blocks. Please try again.</string>
 
+    <!-- AssistantViewModel: commit result messages -->
+    <string name="commit_one_saved">✓ One task saved</string>
+    <string name="commit_n_saved">✓ %1$d tasks saved</string>
+    <string name="commit_one_updated">✓ One task updated</string>
+    <string name="commit_n_updated">✓ %1$d tasks updated</string>
+    <string name="commit_saved_and_updated">✓ %1$d new + %2$d updated</string>
+    <string name="commit_partial_failure">⚠️ Saved: %1$d, updated: %2$d, failed: %3$d</string>
+    <string name="commit_nothing_saved">❌ No tasks were saved</string>
+
+    <!-- AssistantViewModel: load task errors -->
+    <string name="load_task_not_found">❌ Task ID %1$d not found</string>
+    <string name="load_task_exception">❌ Error loading task %1$d: %2$s</string>
+
+    <!-- TaskListViewModel: action result messages -->
+    <string name="tasklist_complete_success">Tasks completed successfully</string>
+    <string name="tasklist_complete_failed">Error completing tasks: %1$s</string>
+    <string name="tasklist_delete_success">Tasks deleted successfully</string>
+    <string name="tasklist_delete_failed">Error deleting tasks: %1$s</string>
+
+    <!-- QuoteViewModel: error messages -->
+    <string name="quote_error_load">Error loading motivational quotes.</string>
+    <string name="quote_error_fetch">Error getting a new quote.</string>
+
     <!-- Generic error -->
     <string name="error_unexpected">Unexpected error: %1$s</string>
 

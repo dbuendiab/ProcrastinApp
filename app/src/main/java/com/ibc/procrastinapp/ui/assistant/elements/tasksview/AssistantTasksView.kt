@@ -24,16 +24,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ibc.procrastinapp.data.service.AssistantResponse
-import com.ibc.procrastinapp.ui.assistant.AssistantState
-import com.ibc.procrastinapp.ui.assistant.AssistantState.ViewModelInfo
-import com.ibc.procrastinapp.ui.assistant.QuoteViewModel
-import com.ibc.procrastinapp.ui.assistant.elements.StatusCard
-import com.ibc.procrastinapp.utils.Logger
 import androidx.compose.ui.res.stringResource
 import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.data.ai.AIServiceError
 import com.ibc.procrastinapp.data.service.AssistantResponseParserError
 import com.ibc.procrastinapp.data.service.SaveMessagesException
+import com.ibc.procrastinapp.ui.assistant.AssistantState
+import com.ibc.procrastinapp.ui.assistant.AssistantState.AssistantEvent
+import com.ibc.procrastinapp.ui.assistant.AssistantState.LoadTaskError
+import com.ibc.procrastinapp.ui.assistant.AssistantState.ViewModelInfo
+import com.ibc.procrastinapp.ui.assistant.QuoteViewModel
+import com.ibc.procrastinapp.ui.assistant.elements.StatusCard
+import com.ibc.procrastinapp.utils.Logger
 
 private const val logTag = "IBC-TaskView"
 
@@ -95,11 +97,41 @@ fun AssistantTasksView(
             )
         }
 
-        // Mostrar mensaje de guardado si existe
-        uiState.viewModelInfo?.let { saveMessage ->
+        // Convertir evento tipado a ViewModelInfo con strings localizadas
+        val eventViewModelInfo: ViewModelInfo? = when (val e = uiState.event) {
+            is AssistantEvent.CommitDone -> when {
+                e.failed == 0 && e.updated == 0 ->
+                    ViewModelInfo.Success(
+                        if (e.saved == 1) stringResource(R.string.commit_one_saved)
+                        else stringResource(R.string.commit_n_saved, e.saved)
+                    )
+                e.failed == 0 && e.saved == 0 ->
+                    ViewModelInfo.Success(
+                        if (e.updated == 1) stringResource(R.string.commit_one_updated)
+                        else stringResource(R.string.commit_n_updated, e.updated)
+                    )
+                e.failed == 0 ->
+                    ViewModelInfo.Success(stringResource(R.string.commit_saved_and_updated, e.saved, e.updated))
+                e.saved + e.updated > 0 ->
+                    ViewModelInfo.Warning(stringResource(R.string.commit_partial_failure, e.saved, e.updated, e.failed))
+                else ->
+                    ViewModelInfo.Error(stringResource(R.string.commit_nothing_saved))
+            }
+            is AssistantEvent.LoadFailed -> {
+                val lines = e.errors.map { err ->
+                    when (err) {
+                        is LoadTaskError.NotFound -> stringResource(R.string.load_task_not_found, err.id)
+                        is LoadTaskError.TaskException -> stringResource(R.string.load_task_exception, err.id, err.message ?: "")
+                    }
+                }
+                ViewModelInfo.Error(lines.joinToString("\n"))
+            }
+            null -> null
+        }
+        eventViewModelInfo?.let { info ->
             StatusCard(
                 modifier = Modifier.fillMaxWidth(),
-                viewModelInfo = saveMessage,
+                viewModelInfo = info,
                 onDismiss = onClearViewModelInfo
             )
         }
