@@ -50,7 +50,8 @@ fun ShowUrgentRow(
         Text(
             // El caso (new) es para la visualización del asistente (tareas nuevas)
             // La quito porque no quiero trabajar con task.id en el asistente
-            text = if (task.id == 0L) " (new)" else " (ID: ${task.id})",
+            text = if (task.id == 0L) stringResource(R.string.task_new_label)
+                   else stringResource(R.string.task_id_suffix, task.id),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

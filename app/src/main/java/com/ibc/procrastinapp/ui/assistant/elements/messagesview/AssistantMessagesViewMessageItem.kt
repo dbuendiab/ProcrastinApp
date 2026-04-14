@@ -24,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.data.ai.Message
 import com.ibc.procrastinapp.ui.common.clipAutomaticText
 
@@ -60,7 +62,7 @@ fun AssistantMessagesViewMessageItem(message: Message) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "AI",
+                    text = stringResource(R.string.avatar_assistant),
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
@@ -101,7 +103,7 @@ fun AssistantMessagesViewMessageItem(message: Message) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "TÚ",
+                    text = stringResource(R.string.avatar_user),
                     color = MaterialTheme.colorScheme.onTertiary,
                     fontSize = 10.sp
                 )

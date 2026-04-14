@@ -28,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.ui.common.clipAutomaticText
 
 /**
@@ -65,7 +67,7 @@ fun CommentsCard(
             ) {
                 // Título o indicador de contenido
                 Text(
-                    text = "IA Assistant comments",
+                    text = stringResource(R.string.comments_card_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -74,7 +76,7 @@ fun CommentsCard(
                 // Icono para expandir/contraer (solo visual)
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = if (isExpanded) "Contraer" else "Expandir",
+                    contentDescription = if (isExpanded) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(24.dp)
                 )

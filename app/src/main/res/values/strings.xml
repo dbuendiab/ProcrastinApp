@@ -39,6 +39,8 @@
     
     <!-- Content descriptions and UI labels moved from code -->
     <string name="cd_close">Close</string>
+    <string name="cd_expand">Expand</string>
+    <string name="cd_collapse">Collapse</string>
     <string name="title_dropdown_change_type_cd">Change dropdown type</string>
     <string name="assistant_delete_all_cd">Delete all</string>
     <string name="assistant_go_to_tasklist_cd">Go to Task List</string>
@@ -57,6 +59,10 @@
 
     <!-- Misc UI -->
     <string name="task_id_suffix"> (ID: %1$d)</string>
+    <string name="task_new_label"> (new)</string>
+    <string name="avatar_assistant">AI</string>
+    <string name="avatar_user">YOU</string>
+    <string name="comments_card_title">Assistant comments</string>
     
     <!-- AI Quotes -->
     <string name="quote_prompt">Give me one short, powerful quote about overcoming procrastination, taking action, or staying disciplined. Include the name of the person who said it</string>

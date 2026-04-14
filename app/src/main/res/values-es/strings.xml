@@ -39,6 +39,8 @@
 
     <!-- Content descriptions and UI labels moved from code -->
     <string name="cd_close">Cerrar</string>
+    <string name="cd_expand">Expandir</string>
+    <string name="cd_collapse">Contraer</string>
     <string name="title_dropdown_change_type_cd">Cambiar tipo del desplegable</string>
     <string name="assistant_delete_all_cd">Eliminar todo</string>
     <string name="assistant_go_to_tasklist_cd">Ir a la lista de tareas</string>
@@ -57,6 +59,10 @@
 
     <!-- Misc UI -->
     <string name="task_id_suffix"> (ID: %1$d)</string>
+    <string name="task_new_label"> (nueva)</string>
+    <string name="avatar_assistant">IA</string>
+    <string name="avatar_user">TÚ</string>
+    <string name="comments_card_title">Comentarios del asistente</string>
     
     <!-- AI Quotes -->
     <string name="quote_prompt">Dame una cita corta y poderosa sobre superar la procrastinación, tomar acción, o mantener la disciplina. Incluye el nombre de la persona que la dijo</string>
