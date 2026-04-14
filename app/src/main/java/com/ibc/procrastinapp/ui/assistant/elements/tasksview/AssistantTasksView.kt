@@ -32,6 +32,7 @@ import com.ibc.procrastinapp.utils.Logger
 import androidx.compose.ui.res.stringResource
 import com.ibc.procrastinapp.R
 import com.ibc.procrastinapp.data.ai.AIServiceError
+import com.ibc.procrastinapp.data.service.AssistantResponseParserError
 import com.ibc.procrastinapp.data.service.SaveMessagesException
 
 private const val logTag = "IBC-TaskView"
@@ -76,6 +77,12 @@ fun AssistantTasksView(
 
                 is SaveMessagesException ->
                     stringResource(R.string.error_save_messages, error.cause?.message ?: "")
+
+                is AssistantResponseParserError.MalformedJson ->
+                    stringResource(R.string.error_parser_malformed_json)
+
+                is AssistantResponseParserError.MultipleJsonObjectsFound ->
+                    stringResource(R.string.error_parser_multiple_json)
 
                 else ->
                     stringResource(R.string.error_unexpected, error.message ?: "")

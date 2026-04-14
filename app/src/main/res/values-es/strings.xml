@@ -69,6 +69,10 @@
     <!-- Errores de ChatAIService -->
     <string name="error_save_messages">Error al guardar la conversación: %1$s</string>
 
+    <!-- Errores del parser de respuesta del asistente -->
+    <string name="error_parser_malformed_json">No se pudo procesar la respuesta del asistente (datos malformados). Por favor, inténtalo de nuevo.</string>
+    <string name="error_parser_multiple_json">La respuesta del asistente contiene varios bloques de datos. Por favor, inténtalo de nuevo.</string>
+
     <!-- Error genérico -->
     <string name="error_unexpected">Error inesperado: %1$s</string>
 
