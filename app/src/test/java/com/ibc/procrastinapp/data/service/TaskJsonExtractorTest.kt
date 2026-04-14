@@ -46,7 +46,7 @@ class TaskJsonExtractorTest {
         }
     """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertEquals(1, tasks.size)
         assertEquals("Llamar a Pedro", tasks[0].title)
     }
@@ -76,7 +76,7 @@ class TaskJsonExtractorTest {
             }
         """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertEquals(1, tasks.size)
         assertEquals("Tarea principal", tasks[0].title)
         assertEquals("Subtarea 1", tasks[0].subtasks[0].title)
@@ -98,7 +98,7 @@ class TaskJsonExtractorTest {
             }
         """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertTrue(tasks.isEmpty())
     }
 
@@ -119,7 +119,7 @@ class TaskJsonExtractorTest {
             }
         """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertTrue(tasks.isEmpty())
     }
 
@@ -141,7 +141,7 @@ class TaskJsonExtractorTest {
             }
         """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertEquals(1, tasks.size)
         assertEquals("Comprar pan", tasks[0].title)
     }
@@ -153,7 +153,7 @@ class TaskJsonExtractorTest {
             propuesta: { tasks: [] }
         """
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         assertTrue(tasks.isEmpty())
     }
 
@@ -177,7 +177,7 @@ class TaskJsonExtractorTest {
             }
         """.trimIndent()
 
-        val tasks = extractor.extractTasksFromText(text)
+        val tasks = extractor.extractTasks(text)
         val t = tasks[0]
         assertEquals("", t.deadline)
         assertEquals("", t.notes)
@@ -198,7 +198,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertEquals(1, result.size)
         assertEquals("Tarea única", result[0].title)
     }
@@ -206,7 +206,7 @@ class TaskJsonExtractorTest {
     @Test
     fun `Empty input string`() {
         val text = """""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -220,21 +220,21 @@ class TaskJsonExtractorTest {
             "comentario": "Segundo",
             "propuesta": { "tasks": [] }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
     @Test
     fun `No JSON object in input`() {
         val text = """Este texto no tiene JSON""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
     @Test
     fun `Invalid JSON format`() {
         val text = """{ comentario: 'Falta comillas y llaves }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -243,7 +243,7 @@ class TaskJsonExtractorTest {
         val text = """{
             "comentario": "Sin propuesta"
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -253,7 +253,7 @@ class TaskJsonExtractorTest {
             "comentario": "Sin tareas",
             "propuesta": {}
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -265,7 +265,7 @@ class TaskJsonExtractorTest {
                 "tasks": []
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -279,7 +279,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -298,7 +298,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertEquals(1, result.size)
         assertEquals("Tarea principal", result[0].title)
     }
@@ -318,7 +318,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 
@@ -333,7 +333,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertEquals(2, result.size)
     }
 
@@ -346,7 +346,7 @@ class TaskJsonExtractorTest {
 //                "tasks": [null]
 //            }
 //        }""".trimIndent()
-//        val result = extractor.extractTasksFromText(text)
+//        val result = extractor.extractTasks(text)
 //        assertTrue(result.isEmpty())
 //    }
 
@@ -370,7 +370,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertEquals(1, result.size)
         assertEquals("Principal", result[0].title)
     }
@@ -395,7 +395,7 @@ class TaskJsonExtractorTest {
                 ]
             }
         }""".trimIndent()
-        val result = extractor.extractTasksFromText(text)
+        val result = extractor.extractTasks(text)
         assertTrue(result.isEmpty())
     }
 

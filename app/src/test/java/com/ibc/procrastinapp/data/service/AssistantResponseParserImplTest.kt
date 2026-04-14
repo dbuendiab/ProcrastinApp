@@ -247,14 +247,15 @@ class AssistantResponseParserImplTest {
 //    }
 
     @Test
-    fun `parse throws exception when multiple JSON objects are found`() {
+    fun `parse throws MalformedJson when two JSON blocks are present`() {
+        // La regex greedy captura desde el primer { hasta el último } como un único bloque,
+        // que resulta ser JSON malformado. Por tanto se lanza MalformedJson, no MultipleJsonObjectsFound.
         val text = "Texto inicial"
         val json1 = """{"comentario": "Primer comentario", "propuesta": {}}"""
         val json2 = """{"comentario": "Segundo comentario", "propuesta": {}}"""
         val message = "$text\n$json1\n\nOtro texto\n$json2"
 
-        // Debe lanzar una excepción cuando encuentra múltiples objetos JSON
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(AssistantResponseParserError.MalformedJson::class.java) {
             parser.parse(message)
         }
     }

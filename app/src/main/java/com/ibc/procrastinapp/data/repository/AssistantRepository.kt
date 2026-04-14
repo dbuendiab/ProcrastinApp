@@ -33,10 +33,10 @@ import kotlinx.coroutines.launch
  */
 class AssistantRepository(
     private val chatAIService: ChatAIService,
-    coroutineScope: CoroutineScope
-) {
-    private val parser: AssistantResponseParser = AssistantResponseParserImpl()
+    coroutineScope: CoroutineScope,
+    private val parser: AssistantResponseParser = AssistantResponseParserImpl(),
     private val taskExtractor: TaskJsonExtractor = TaskJsonExtractor()
+) {
 
     val messages: StateFlow<List<Message>> = chatAIService.messages
     val isLoading: StateFlow<Boolean> = chatAIService.isLoading
@@ -52,7 +52,7 @@ class AssistantRepository(
     // Unifica errores del servicio de IA y del parser en un único flujo
     val error: StateFlow<Throwable?> = combine(chatAIService.error, _parserError) { serviceError, parserError ->
         parserError ?: serviceError
-    }.stateIn(coroutineScope, SharingStarted.WhileSubscribed(5000), null)
+    }.stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
     init {
         coroutineScope.launch {
